@@ -1,3 +1,4 @@
+mod extract_links;
 use reqwest::Client;
 use std::collections::{HashSet, VecDeque};
 use url::Url;
@@ -40,7 +41,7 @@ fn check_links(base_url: &str, depth: u32) {
             }
         };
 
-        let links = extract_links(&html, &base_url);
+        let links = extract_links::extract_links(&html, &base_url);
 
         for link in links {
             queue.push_back((link, current_depth + 1));
@@ -48,11 +49,11 @@ fn check_links(base_url: &str, depth: u32) {
     }
 }
 
-fn extract_links(html: &str, base_url: &Url) -> Vec<String> {
-    // Code to extract links from the HTML content goes here
-    // This is just a placeholder for brevity
-    vec![]
-}
+// fn extract_links(html: &str, base_url: &Url) -> Vec<String> {
+//     // Code to extract links from the HTML content goes here
+//     // This is just a placeholder for brevity
+//     vec![]
+// }
 
 fn main() {
     let base_url = "https://example.com";
