@@ -1,5 +1,4 @@
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn make_request() -> Result<(), Box<dyn std::error::Error>> {
     // Specify the URL you want to send the GET request to
     let url = "https://google.com";
 
@@ -22,4 +21,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
+}
+
+#[tokio::main]
+async fn main() {
+    let result = make_request();
 }
