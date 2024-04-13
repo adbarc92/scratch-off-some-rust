@@ -1,62 +1,25 @@
-mod extract_links;
-use reqwest::Client;
-use std::collections::{HashSet, VecDeque};
-use url::Url;
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Specify the URL you want to send the GET request to
+    let url = "https://google.com";
 
-fn check_links(base_url: &str, depth: u32) {
-    let client = Client::new();
-    let mut visited: HashSet<String> = HashSet::new();
-    let mut queue: VecDeque<(String, u32)> = VecDeque::new();
+    // Send the GET request and await the response
+    let response = reqwest::get(url).await?;
 
-    queue.push_back((base_url.to_owned(), 0));
+    // Check if the request was successful (status code 200)
+    if response.status().is_success() {
+        // Get the response body as bytes
+        let body = response.bytes().await?;
 
-    while let Some((url, current_depth)) = queue.pop_front() {
-        if visited.contains(&url) || current_depth > depth {
-            continue;
-        }
+        // Convert the bytes into a string (assuming it's UTF-8 encoded)
+        let body_as_string = String::from_utf8(body.to_vec())?;
 
-        visited.insert(url.clone());
-
-        let response = match client.get(&url).send() {
-            Ok(res) => res,
-            Err(e) => {
-                eprintln!("Error fetching {}: {}", url, e);
-                continue;
-            }
-        };
-
-        let base_url = match Url::parse(&url) {
-            Ok(url) => url,
-            Err(e) => {
-                eprintln!("Error parsing URL {}: {}", url, e);
-                continue;
-            }
-        };
-
-        let html = match response.text() {
-            Ok(html) => html,
-            Err(e) => {
-                eprintln!("Error reading response body for {}: {}", url, e);
-                continue;
-            }
-        };
-
-        let links = extract_links::extract_links(&html, &base_url);
-
-        for link in links {
-            queue.push_back((link, current_depth + 1));
-        }
+        // Print the response body
+        println!("{}", body_as_string);
+    } else {
+        // Print an error message if the request was not successful
+        println!("Request failed with status code: {}", response.status());
     }
-}
 
-// fn extract_links(html: &str, base_url: &Url) -> Vec<String> {
-//     // Code to extract links from the HTML content goes here
-//     // This is just a placeholder for brevity
-//     vec![]
-// }
-
-fn main() {
-    let base_url = "https://example.com";
-    let depth = 2;
-    check_links(base_url, depth);
+    Ok(())
 }
